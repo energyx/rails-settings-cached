@@ -43,7 +43,7 @@ module RailsSettings
       # set a setting value by [] notation
       def []=(var_name, value)
         settings_key = scoped_key(var_name)
-        super
+        super(settings_key, value)
         Rails.cache.write(cache_key(settings_key, @object), value)
         value
       end
