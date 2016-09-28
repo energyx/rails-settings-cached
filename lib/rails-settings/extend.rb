@@ -28,7 +28,7 @@ module RailsSettings
     end
 
     def settings
-      ScopedSettings.for_thing(self)
+      ScopedSettings.for_thing(self, respond_to?(:settings_scope) ? settings_scope : nil)
     end
   end
 end

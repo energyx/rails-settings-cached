@@ -32,18 +32,31 @@ module RailsSettings
       end
 
       def [](key)
-        return super(key) unless rails_initialized?
-        val = Rails.cache.fetch(cache_key(key, @object)) do
-          super(key)
+        settings_key = scoped_key(key)
+        return super(settings_key) unless rails_initialized?
+        val = Rails.cache.fetch(cache_key(settings_key, @object)) do
+          super(settings_key)
         end
         val
       end
 
       # set a setting value by [] notation
       def []=(var_name, value)
+        settings_key = scoped_key(var_name)
         super
-        Rails.cache.write(cache_key(var_name, @object), value)
+        Rails.cache.write(cache_key(settings_key, @object), value)
         value
+      end
+
+      ##
+      # Gets the key with the settings scope applied (if it was specified)
+      #
+      # @param [String] key setting key before scope is applied
+      #
+      # @return [String] key with the model's scope applied to it
+      #
+      def scoped_key(key)
+        @settings_scope.blank? ? key : "#{@settings_scope.to_s}.#{key}"
       end
 
       def save_default(key, value)
@@ -55,3 +68,4 @@ module RailsSettings
     end
   end
 end
+
