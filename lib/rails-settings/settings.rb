@@ -8,7 +8,7 @@ module RailsSettings
 
     # get the value field, YAML decoded
     def value
-      YAML.load(self[:value]) if self[:value].present?
+      YAML.load(self[:value], aliases: true, permitted_classes: [Time, Symbol]) if self[:value].present?
     end
 
     # set the value field, YAML encoded
@@ -109,10 +109,18 @@ module RailsSettings
         new_value
       end
 
-      def object(var_name, object)
+      def object(var_name, obj = nil)
         return nil unless rails_initialized?
         return nil unless table_exists?
-        new_thing_scoped(object).where(var: var_name.to_s).first
+
+        scoped =
+          if obj
+            new_thing_scoped(obj)
+          else
+            thing_scoped
+          end
+
+        scoped.where(var: var_name.to_s).first
       end
 
       def thing_scoped
